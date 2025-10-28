@@ -7,9 +7,15 @@ import HeaderVideo from '../assets/Header-Video.mp4';
 const Hero = () => {
   const videoRef = useRef(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   const handleVideoLoad = () => {
     setIsVideoLoaded(true);
+  };
+
+  const handleVideoError = () => {
+    setVideoError(true);
+    setIsVideoLoaded(true); // Stop loading state
   };
 
   return (
@@ -22,9 +28,11 @@ const Hero = () => {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata" // Changed to metadata for faster initial load
           onLoadedData={handleVideoLoad}
+          onError={handleVideoError}
           className="w-full h-full object-cover"
+          poster="/api/placeholder/800/600" // Optional: Add a placeholder image
         >
           <source src={HeaderVideo} type="video/mp4" />
           Your browser does not support the video tag.
@@ -37,14 +45,22 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/20 to-black/70"></div>
       </div>
       
-      {/* Loading state */}
-      {!isVideoLoaded && (
+      {/* Loading state - Show only if video is taking time */}
+      {!isVideoLoaded && !videoError && (
         <div className="absolute inset-0 bg-black z-10 flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-gold-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gold-200">Loading premium experience...</p>
+          </div>
         </div>
       )}
 
-      {/* Animated background elements */}
+      {/* Fallback if video errors */}
+      {videoError && (
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900/30 to-black z-0"></div>
+      )}
+
+      {/* Rest of your component remains the same */}
       <div className="absolute inset-0 opacity-10 z-0">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -121,7 +137,7 @@ const Hero = () => {
         </motion.div>
       </div>
 
-      {/* Scroll Indicator - Separate section at bottom */}
+      {/* Scroll Indicator */}
       <div className="relative z-10 pb-6 sm:pb-8">
         <motion.div
           animate={{ y: [0, 10, 0] }}
