@@ -7,60 +7,43 @@ import HeaderVideo from '../assets/Header-Video.mp4';
 const Hero = () => {
   const videoRef = useRef(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [videoError, setVideoError] = useState(false);
 
   const handleVideoLoad = () => {
     setIsVideoLoaded(true);
   };
 
-  const handleVideoError = () => {
-    setVideoError(true);
-    setIsVideoLoaded(true); // Stop loading state
-  };
-
   return (
     <section id="home" className="min-h-screen relative flex flex-col items-center justify-center overflow-hidden">
-      {/* Video Background */}
+      {/* Video Background - Always show gradient, video overlays when ready */}
       <div className="absolute inset-0 z-0">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata" // Changed to metadata for faster initial load
-          onLoadedData={handleVideoLoad}
-          onError={handleVideoError}
-          className="w-full h-full object-cover"
-          poster="/api/placeholder/800/600" // Optional: Add a placeholder image
-        >
-          <source src={HeaderVideo} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        {/* Fallback gradient background (always visible) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900/40 to-black"></div>
         
-        {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/50"></div>
+        {/* Video - hidden until loaded to prevent layout shift */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${isVideoLoaded ? 'opacity-100' : 'opacity-0'}`}>
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            onLoadedData={handleVideoLoad}
+            className="w-full h-full object-cover"
+          >
+            <source src={HeaderVideo} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          
+          {/* Video overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/40"></div>
+        </div>
         
-        {/* Gradient overlay for premium look */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-purple-900/20 to-black/70"></div>
+        {/* Additional gradient overlay (always on top) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-transparent to-black/60"></div>
       </div>
       
-      {/* Loading state - Show only if video is taking time */}
-      {!isVideoLoaded && !videoError && (
-        <div className="absolute inset-0 bg-black z-10 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 border-4 border-gold-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p className="text-gold-200">Loading premium experience...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Fallback if video errors */}
-      {videoError && (
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-purple-900/30 to-black z-0"></div>
-      )}
-
-      {/* Rest of your component remains the same */}
+      {/* Animated background elements (always visible) */}
       <div className="absolute inset-0 opacity-10 z-0">
         {[...Array(20)].map((_, i) => (
           <motion.div
@@ -83,7 +66,7 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - Always visible and centered */}
       <div className="container mx-auto px-6 text-center relative z-10 flex-1 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
